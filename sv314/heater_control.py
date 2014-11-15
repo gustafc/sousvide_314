@@ -2,10 +2,9 @@ import RPi.GPIO as GPIO
 import time
 from Queue import Queue, Empty
 from thread import start_new_thread
+from state_control import StateControl, State
 
-_turned_on = True
-_target_temperature = 54.5
-_update_queue = Queue()
+_state = State(54.5, True)
 
 PIN=11
 filename='/mnt/1wire/28.383E84050000/temperature'
@@ -27,30 +26,14 @@ def read_file():
   with file(filename) as f:
       return float(f.read())
 
-def set_target_temperature(new_temp):
-  def update(): _target_temperature = new_temp
-  _update_queue.put_nowait(update)
-
-def set_turned_on(should_run):
-  def update(): _turned_on = should_run
-  _update_queue.put_nowait(update)
-
-def _flush_updates():
-  try:
-    while True:
-      update = _update_queue.get_nowait()
-      update()
-  except Empty:
-    pass
-
-def run_loop():
+def run_loop(state_control):
   gpio_setup()
   try:
-    is_heating=False
+    is_heating = _state.is_running
     while True:
-      _flush_updates()
+      state_control.update(state)
       temp = read_file()
-      should_heat = _turned_on and temp < _target_temperature
+      should_heat = _state.is_running and temp < _state.target_temperature
       print temp, should_heat
       if should_heat and not is_heating:
         gpio_on()
@@ -58,12 +41,13 @@ def run_loop():
       elif not should_heat and is_heating:
         gpio_off()
         is_heating = False
+      state_control.post_snapshot(Snapshot(target_temperature=state.target_temperature,
+                                           current_temperature=temp,
+                                           is_running=_state.is_running
+                                           is_heating=is_heating))
       time.sleep(1)
   finally:
     GPIO.cleanup()
 
-def start_thread():
-  start_new_thread(run_loop)
-
 if __name__ == '__main__':
-  run_loop()
+  run_loop(StateControl())
