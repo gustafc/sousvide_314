@@ -28,11 +28,13 @@ def get_state():
 def set_running():
     desired_state = request.get_json(force=True)
     print "Set running to", desired_state
+    _state_control.set_running(desired_state)
     return jsonify(**read_state())
 
 @app.route("/state/target_temperature", methods=["POST"])
 def set_target_temperature():
     desired_temp = request.get_json(force=True)
+    _state_control.set_target_temperature(desired_temp)
     print "Set temperature to", desired_temp
     return jsonify(**read_state())
 
