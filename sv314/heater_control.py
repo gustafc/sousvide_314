@@ -1,8 +1,10 @@
 import RPi.GPIO as GPIO
 import time
+from Queue import Queue, Empty
 
 _turned_on = True
 _target_temperature = 54.5
+_update_queue = Queue()
 
 PIN=11
 filename='/mnt/1wire/28.383E84050000/temperature'
@@ -24,14 +26,28 @@ def read_file():
   with file(filename) as f:
       return float(f.read())
 
-def set_temperature(new_temp):
-  _target_temperature = new_temp
+def set_target_temperature(new_temp):
+  def update(): _target_temperature = new_temp
+  _update_queue.put_nowait(update)
+
+def set_turned_on(should_run):
+  def update(): _turned_on = should_run
+  _update_queue.put_nowait(update)
+
+def _flush_updates():
+  try:
+    while True:
+      update = queue.get_nowait()
+      update()
+  except Empty:
+    pass
 
 if __name__ == '__main__':
   gpio_setup()
   try:
     is_heating=False
     while True:
+      _flush_updates()
       temp = read_file()
       should_heat = _turned_on and temp < _target_temperature
       print temp, should_heat
@@ -42,6 +58,5 @@ if __name__ == '__main__':
         gpio_off()
         is_heating = False
       time.sleep(1)
-  finally: 
+  finally:
     GPIO.cleanup()
-    
