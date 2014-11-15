@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 import time
-from Queue import Queue, Empty
 from thread import start_new_thread
 from state_control import StateControl, State
 
@@ -31,7 +30,7 @@ def run_loop(state_control):
   try:
     is_heating = _state.is_running
     while True:
-      state_control.update(state)
+      state_control.update(_state)
       temp = read_file()
       should_heat = _state.is_running and temp < _state.target_temperature
       print temp, should_heat
@@ -41,9 +40,9 @@ def run_loop(state_control):
       elif not should_heat and is_heating:
         gpio_off()
         is_heating = False
-      state_control.post_snapshot(Snapshot(target_temperature=state.target_temperature,
+      state_control.post_snapshot(Snapshot(target_temperature=_state.target_temperature,
                                            current_temperature=temp,
-                                           is_running=_state.is_running
+                                           is_running=_state.is_running,
                                            is_heating=is_heating))
       time.sleep(1)
   finally:

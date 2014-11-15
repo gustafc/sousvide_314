@@ -1,15 +1,20 @@
+import os
 import random
 import json
+import thread
 from flask import Flask, render_template, jsonify, request
+from state_control import StateControl
+
 app = Flask(__name__)
 
+_state_control = StateControl()
+
 def read_state():
-    target = 54.5
-    current = random.uniform(target - 5, target + .5)
-    return dict(target_temperature=target,
-                current_temperature=current,
-                running=not random.randrange(2),
-                heating=current <= target)
+    ss = _state_control.read_snapshot()
+    return dict(target_temperature=ss.target_temperature,
+                current_temperature=ss.current_temperature,
+                running=ss.is_running,
+                heating=ss.is_heating)
 
 @app.route("/")
 def hello():
@@ -32,4 +37,12 @@ def set_target_temperature():
     return jsonify(**read_state())
 
 if __name__ == "__main__":
+    use_dummy = json.loads(os.getenv("SV314_USE_DUMMY", "false"))
+    if use_dummy:
+      import dummy_control
+      run_loop = dummy_control.run_loop
+    else:
+      import heater_control
+      run_loop = heater_control.run_loop
+    thread.start_new_thread(run_loop, (_state_control,))
     app.run(debug=True, host="0.0.0.0")
