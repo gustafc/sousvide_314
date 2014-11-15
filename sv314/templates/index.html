@@ -1,6 +1,13 @@
 <!doctype html>
 <title>Sous vide</title>
 
+<style>
+  @import "{{url_for('static', filename='css/style.css')}}";
+</style>
+<script src="{{url_for('static', filename='js/q.js')}}"></script>
+<script src="{{url_for('static', filename='js/util.js')}}"></script>
+<script src="{{url_for('static', filename='js/sv314.js')}}"></script>
+
 <h1>Current sous vide:
   <span id="sv314_temperature">
     <data id="sv314_current_temp">??</data><span id="sv314_is_heating">&#x1f525;</span>/<data id="sv314_target_temp">??</data>
@@ -10,9 +17,6 @@
 <button id="sv314_turn_on">&#x25B6; Start</button>
 <button id="sv314_turn_off">&#9613;&#9613; Stop</button>
 
-<script src="{{url_for('static', filename='js/q.js')}}"></script>
-<script src="{{url_for('static', filename='js/util.js')}}"></script>
-<script src="{{url_for('static', filename='js/sv314.js')}}"></script>
 <script>
 sv314.init({{ state | tojson | safe }})
 </script>

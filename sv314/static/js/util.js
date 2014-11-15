@@ -19,10 +19,10 @@ var promises = function(window){
 }(this);
 
 var ajax = function(window) {
-  function get(url) {
+  function call(method, url, params) {
     return Q.promise(function(resolve, reject) {
       var req = new XMLHttpRequest();
-      req.open('GET', url);
+      req.open(method, url);
       req.onload = function() {
         if (req.status == 200) {
           resolve(req.response);
@@ -31,8 +31,14 @@ var ajax = function(window) {
         }
       };
       req.onerror = reject.bind(null, Error("Network Error"));
-      req.send();
+      req.send(params);
     });
   }
-  return { get: get };
+  function get(url){
+    return call("GET", url, null);
+  }
+  function postJson(url, data){
+    return call("POST", url, JSON.stringify(data));
+  }
+  return { get: get, postJson: postJson };
 }(this);
