@@ -3,19 +3,36 @@
 
 <style>
   @import "{{url_for('static', filename='css/style.css')}}";
+  @import "{{url_for('static', filename='css/bootstrap.min.css')}}";
+  @import "{{url_for('static', filename='css/bootstrap-theme.min.css')}}";
 </style>
+
 <script src="{{url_for('static', filename='js/q.js')}}"></script>
 <script src="{{url_for('static', filename='js/util.js')}}"></script>
 <script src="{{url_for('static', filename='js/sv314.js')}}"></script>
+<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
-<h1>Current sous vide:
-  <span id="sv314_temperature">
-    <data id="sv314_current_temp">??</data><span id="sv314_is_heating">&#x1f525;</span>/<data id="sv314_target_temp">??</data>
-  </span>
-</h1>
+<h1>Sous Vide</h1>
 
-<button id="sv314_turn_on">&#x25B6; Start</button>
-<button id="sv314_turn_off">&#9613;&#9613; Stop</button>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+      Current sous vide:
+    </h3>
+  </div>
+
+  <div class="panel-body">
+    <h3>
+      <span id="sv314_temperature">
+        <data id="sv314_current_temp">??</data>
+        <span class="glyphicon glyphicon-fire"id="sv314_is_heating"><span style="display:none">&#x1f525;</span></span>/<data id="sv314_target_temp">??</data>
+      </span>
+    </h3>
+
+    <button class="btn btn-primary" id="sv314_turn_on">&#x25B6; Start</button>
+    <button class="btn btn-danger" id="sv314_turn_off">&#9613;&#9613; Stop</button>
+  </div>
+</div>
 
 <script>
 sv314.init({{ state | tojson | safe }})
