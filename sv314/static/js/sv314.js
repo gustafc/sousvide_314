@@ -14,7 +14,9 @@ var sv314 = function(window){
     show("#sv314_is_heating", state.heating);
     show("#sv314_turn_on", !state.running);
     show("#sv314_turn_off", state.running);
-    document.title = contentOf("#sv314_temperature");
+    document.title = [].slice.call(document.querySelector("#sv314_temperature").childNodes).map(function(node){
+      return (node.style && node.style.display === "none") ? "" : node.textContent;
+    }).join("");
   }
   var syncStateRefreshes = promises.discardIfNotLatest();
   function refreshState(){
