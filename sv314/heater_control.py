@@ -38,7 +38,7 @@ def set_turned_on(should_run):
 def _flush_updates():
   try:
     while True:
-      update = queue.get_nowait()
+      update = _update_queue.get_nowait()
       update()
   except Empty:
     pass
