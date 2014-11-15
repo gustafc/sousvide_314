@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 from Queue import Queue, Empty
+from thread import start_new_thread
 
 _turned_on = True
 _target_temperature = 54.5
@@ -42,7 +43,7 @@ def _flush_updates():
   except Empty:
     pass
 
-if __name__ == '__main__':
+def run_loop():
   gpio_setup()
   try:
     is_heating=False
@@ -60,3 +61,9 @@ if __name__ == '__main__':
       time.sleep(1)
   finally:
     GPIO.cleanup()
+
+def start_thread():
+  start_new_thread(run_loop)
+
+if __name__ == '__main__':
+  run_loop()
