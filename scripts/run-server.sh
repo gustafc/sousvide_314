@@ -1,8 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 set -ex
 
-REPOROOT=$(dirname $0)/..
-cd $REPOROOT
+cd $(dirname $0)/..
 
 source scripts/load-env.sh
 python -m sv314.server
