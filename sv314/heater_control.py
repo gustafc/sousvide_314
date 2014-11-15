@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 from thread import start_new_thread
-from state_control import StateControl, State
+from state_control import StateControl, State, Snapshot
 
 _state = State(54.5, True)
 
