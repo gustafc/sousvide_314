@@ -1,7 +1,7 @@
 import os
 import random
 import json
-import thread
+import threading
 from flask import Flask, render_template, jsonify, request
 from state_control import StateControl
 
@@ -38,13 +38,17 @@ def set_target_temperature():
     print "Set temperature to", desired_temp
     return jsonify(**read_state())
 
+@app.before_first_request
+def start_thread():
+  use_dummy = json.loads(os.getenv("SV314_USE_DUMMY", "false"))
+  if use_dummy:
+    import dummy_control
+    run_loop = dummy_control.run_loop
+  else:
+    import heater_control
+    run_loop = heater_control.run_loop
+  threading.Thread(target=run_loop, args=(_state_control,), name="sv314 heater control thread").start()
+
+
 if __name__ == "__main__":
-    use_dummy = json.loads(os.getenv("SV314_USE_DUMMY", "false"))
-    if use_dummy:
-      import dummy_control
-      run_loop = dummy_control.run_loop
-    else:
-      import heater_control
-      run_loop = heater_control.run_loop
-    thread.start_new_thread(run_loop, (_state_control,))
     app.run(debug=True, host="0.0.0.0")
